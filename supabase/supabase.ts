@@ -3,10 +3,10 @@ import { createClient } from "@supabase/supabase-js";
 import { Database } from "../types/supabase";
 import "react-native-url-polyfill/auto";
 import { LinkItem } from "../types/types";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@env";
 
-const supabaseUrl = "https://rpeqvutbwixsrbysjxkl.supabase.co";
-const supabaseAnonKey =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJwZXF2dXRid2l4c3JieXNqeGtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTI0NTg5MTQsImV4cCI6MjAwODAzNDkxNH0.e3qytP9Nuk9aIGuYEoIqETihycnynUCG0o1UkNI3dP0";
+const supabaseUrl = SUPABASE_URL || "";
+const supabaseAnonKey = SUPABASE_ANON_KEY || "";
 
 const ExpoSecureStoreAdapter = {
     getItem: (key: string) => {
@@ -29,20 +29,28 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     },
 });
 
-console.log("supaabse:", supabase);
-
 export const getLink = async (itemId: string) => {
     const { data, error } = await supabase.from("Links").select("*").eq("id", itemId).single();
-    return error ? { id: "", title: "", link: "", tags: [] } : data;
+    return error ? { id: "", title: "", link: "", tags: [], created_at: new Date().toISOString() } : data;
 };
 
 export const getTags = async () => {
     const { data, error } = await supabase.from("Tags").select("*");
-    console.log(data);
     return error ? [] : data;
 };
 
 export const saveLink = async (link: LinkItem) => {
-    const { error } = await supabase.from("Links").insert({ ...link, created_at: new Date().toISOString() });
+    const newLink = { ...link };
+    if (!link.id) {
+        delete newLink.id;
+        const { error } = await supabase.from("Links").insert(newLink);
+        return error;
+    }
+    const { error } = await supabase.from("Links").update(newLink).eq("id", link.id);
     return error;
+};
+
+export const getLinks = async () => {
+    const { data, error } = await supabase.from("Links").select("*");
+    return error ? [] : data;
 };

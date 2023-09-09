@@ -5,7 +5,7 @@ import styles from "../../utils/styles";
 
 export default function TextInput(props: { value: string; onChangeText: (text: string) => void; label: string }) {
     const [isFocused, setIsFocused] = useState(false);
-    const bottom = useSharedValue(20);
+    const bottom = useSharedValue(props.value ? 0 : 20);
 
     useEffect(() => {
         bottom.value = withSpring(isFocused || props.value ? 0 : 20, { damping: 100 });

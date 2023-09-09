@@ -16,6 +16,7 @@ const Link = (props: LinkProps) => {
         title: "",
         link: "",
         tags: [],
+        created_at: new Date().toISOString(),
     });
     const [tags, setTags] = useState<Tag[]>([]);
 
@@ -104,7 +105,7 @@ const Link = (props: LinkProps) => {
             </Tab>
 
             <TouchableOpacity
-                onPress={() => console.log(state)}
+                onPress={saveItem}
                 style={{
                     bottom: 0,
                     position: "absolute",
